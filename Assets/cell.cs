@@ -25,6 +25,15 @@ public class Cell : MonoBehaviour
     [SerializeField]
     private CellState _cellState = CellState.None;
 
+    public CellState CellState
+    {
+        get => _cellState;
+        set
+        {
+            _cellState = value;
+            OnCellStateChanged();
+        }
+
     private void OnValidate()
     {
         OnCellStateChanged();
