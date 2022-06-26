@@ -33,6 +33,7 @@ public class Cell : MonoBehaviour
             _cellState = value;
             OnCellStateChanged();
         }
+    }
 
     private void OnValidate()
     {
