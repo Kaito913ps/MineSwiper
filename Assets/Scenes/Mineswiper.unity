@@ -522,10 +522,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rows: 10
-  _colums: 10
+  _columns: 10
+  _mineCount: 10
   _gridLayoutGroup: {fileID: 1930105710}
   _cellPrefab: {fileID: 5278705848877386494, guid: c4a453df1e6fa2545b4bdecd984fa044, type: 3}
-  _mineCount: 10
 --- !u!114 &1930105710
 MonoBehaviour:
   m_ObjectHideFlags: 0
