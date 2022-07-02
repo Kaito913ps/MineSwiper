@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-
 public enum CellState
 {
     None = 0, // 空セル
@@ -17,41 +16,53 @@ public enum CellState
 
     Mine = -1, // 地雷
 }
+
 public class Cell : MonoBehaviour
 {
+    
     [SerializeField]
+    //text
     private Text _view = null;
 
+   
     [SerializeField]
+    //cellの種類
     private CellState _cellState = CellState.None;
 
+    //cellのプロパティ
     public CellState CellState
     {
         get => _cellState;
         set
         {
             _cellState = value;
-            OnCellStateChanged();
+            OnCellStateChanged(value);
         }
     }
 
+    //地雷あるかどうか
+    public bool IsMine => CellState == CellState.Mine;
+
+    
+    //拡張子
     private void OnValidate()
     {
-        OnCellStateChanged();
+        OnCellStateChanged(CellState);
     }
 
-    private void OnCellStateChanged()
+    //cellのチェンジ
+    private void OnCellStateChanged(CellState value)
     {
         if (_view == null) { return; }
 
-        if (_cellState == CellState.None)
-        {
-            _view.text = "";
-        }
-        else if (_cellState == CellState.Mine)
+        if (_cellState == CellState.Mine)
         {
             _view.text = "X";
             _view.color = Color.red;
+        }
+        else if (_cellState == CellState.None)
+        {
+            _view.text = "";
         }
         else
         {
