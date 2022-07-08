@@ -1,129 +1,124 @@
 using UnityEngine;
 using UnityEngine.UI;
-public class Minesweeper : MonoBehaviour
+using UnityEngine.EventSystems;
+
+
+public class Minesweeper : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
-    //縦列
     private int _rows = 1;
-    public int Rows => _rows;
 
     [SerializeField]
-    //横列
     private int _columns = 1;
-    public int Columns => _columns;
-
 
     [SerializeField]
-    //地雷
-    private int MineCount = 1;
+    private int _mineCount = 1;
 
     [SerializeField]
     private GridLayoutGroup _gridLayoutGroup = null;
 
     [SerializeField]
-    //cellのPrefab
-    private Cell _cellPreafab = null;
-    //cellの2重配列
-    private Cell[,] _cells;
+    private Cell _cellPrefab = null;
+
+    Cell[,] _cells;
 
     private void Start()
     {
-        InitializeCells();
-        InitializeMine(MineCount);
-        CalculateMine();
-    }
+        _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        _gridLayoutGroup.constraintCount = _columns;
 
-    private void InitializeCells()
-    {
-        //クリア
-        Clear();
-
-        var parent = _gridLayoutGroup.gameObject.transform;
-
-        _cells = new Cell[Rows, Columns];
-        for (var r = 0; r < Rows; r++)
+        var cells = new Cell[_rows, _columns];
+        var parent = _gridLayoutGroup.transform;
+        for (var r = 0; r < _rows; r++)
         {
-            for(var c = 0; c < Columns; c++)
+            for (var c = 0; c < _columns; c++)
             {
-                var cell = Instantiate(_cellPreafab);
-                cell.transform.parent = parent;
-                _cells[r, c] = cell;
+                var cell = Instantiate(_cellPrefab);
+                cell.transform.SetParent(parent);
+                cells[r, c] = cell;
             }
         }
-    }
 
-    private void InitializeMine(int count)
-    {
-        if(_cells.Length < count) { throw new System.InvalidOperationException(); }
+        // 地雷数がセル数より大きければ、セル数にキャップする
+        //if (_mineCount > cells.Length)
+        //{
+        //    _mineCount = cells.Length;
+        //}
 
-        for(var i = 0; i < count; )
+        //var mc = _mineCount > cells.Length ? cells.Length : _mineCount;
+
+        // 地雷数とセル数、より小さい値をループ条件に使う
+        var mc = System.Math.Min(_mineCount, cells.Length);
+
+
+        for (var i = 0; i < mc;)
         {
-            var r = Random.Range(0, Rows);
-            var c = Random.Range(0, Columns);
-            var cell =_cells[r, c];
-            if(cell.CellState != CellState.Mine)
+            var r = Random.Range(0, _rows);
+            var c = Random.Range(0, _columns);
+            var cell = cells[r, c];
+
+            if (cell.CellState != CellState.Mine)
             {
-                cell.CellState = CellState.Mine;
                 i++;
+                cell.CellState = CellState.Mine;
             }
-        }    
-    }
 
-    private void CalculateMine()
-    {
-        for(var r = 0; r < Rows; r++)
+
+        }
+
+        for (var r = 0; r < _rows; r++)
         {
-            for(var c = 0; c < Columns; c++)
+            for (var c = 0; c < _columns; c++)
             {
-                var cell = _cells[r, c];
-                if (cell.IsMine) { continue; }
-
-                var count = GetMineCount(r, c);
-                cell.CellState = (CellState)count;
+                var cell = cells[r, c];
+                cell.CellState = GetMineCount(r, c);
             }
         }
     }
 
-    private int GetMineCount(int r, int c)
+    private CellState GetMineCount(int r, int c)
     {
+        var cell = _cells[r, c];
+        if (cell.IsMine)
+        {
+            // セル自身が地雷なので、数える必要がない
+            return CellState.Mine;
+        }
+
         var count = 0;
-        var top = r - 1;
-        var bottom = r + 1;
-        var left = c - 1;
-        var right = c + 1;
 
-        if(top >= 0)
+        if (r - 1 >= 0)
         {
-            if(left >= 0 && _cells[top, left].IsMine) { count++; }
-            if (_cells[top,c].IsMine) { count++; }
-            if(right < Columns && _cells[top,right].IsMine) { count++; }
+            if (c - 1 >= 0 && _cells[r - 1, c - 1].IsMine) { count++; }
+            if (_cells[r - 1, c].IsMine) { count++; }
+            if (c + 1 < _columns && _cells[r - 1, c + 1].IsMine) { count++; }
         }
-        if(left >= 0 && _cells[r, left].IsMine) { count++; }
-        if(right < Columns && _cells[r, right].IsMine) { count++; }
-        if(bottom < Rows)
+        if (c - 1 >= 0 && _cells[r, c - 1].IsMine) { count++; }
+        if (c + 1 < _columns && _cells[r, c + 1].IsMine) { count++; }
+        if (r + 1 < _rows)
         {
-            if(left >= 0 && _cells[bottom, left].IsMine) { count++; }
-            if (_cells[bottom, c].IsMine) { count++; }
-            if(right < Columns && _cells[bottom, right].IsMine) { count++; }
+            if (c - 1 >= 0 && _cells[r + 1, c - 1].IsMine) { count++; }
+            if (_cells[r + 1, c].IsMine) { count++; }
+            if (c + 1 < _columns && _cells[r + 1, c + 1].IsMine) { count++; }
         }
-        return count;
+
+        return (CellState)count;
     }
 
-    private void Clear()
+    public void OnPointerClick(PointerEventData eventData)
     {
-        var parent = _gridLayoutGroup.gameObject.transform;
-        foreach(Transform t in parent)
-        {
-            Destroy(t.gameObject);
-        }
-    }
+        var go = eventData.pointerCurrentRaycast.gameObject;
 
-    private void OnValidate()
-    {
-        if(_gridLayoutGroup != null)
+        var cell = go.GetComponent<Cell>();
+
+        if (cell != null)
         {
-            _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            _gridLayoutGroup.constraintCount = Columns;
+            cell.Open();
+
+            if (cell.IsMine)
+            {
+                // TO DO : ゲームオーバー
+            }
         }
     }
 }

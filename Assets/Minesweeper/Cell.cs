@@ -24,7 +24,11 @@ public class Cell : MonoBehaviour
     //text
     private Text _view = null;
 
-   
+    [SerializeField]
+    //text
+    private Image _cover = null;
+
+
     [SerializeField]
     //cell‚ÌŽí—Þ
     private CellState _cellState = CellState.None;
@@ -39,6 +43,7 @@ public class Cell : MonoBehaviour
             OnCellStateChanged(value);
         }
     }
+
 
     //’n—‹‚ ‚é‚©‚Ç‚¤‚©
     public bool IsMine => CellState == CellState.Mine;
@@ -69,5 +74,11 @@ public class Cell : MonoBehaviour
             _view.text = ((int)_cellState).ToString();
             _view.color = Color.blue;
         }
+    }
+
+    public void Open()
+    {
+        if (_cover == null) { return; }
+        _cover.enabled = false;
     }
 }

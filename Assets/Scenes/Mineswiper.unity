@@ -458,11 +458,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8dcfcbfbe654bb428d965505a3a6d7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rows: 10
+  _rows: 7
   _columns: 10
-  MineCount: 1
+  _mineCount: 1
   _gridLayoutGroup: {fileID: 2036910166}
-  _cellPreafab: {fileID: 522369828245485672, guid: c4a453df1e6fa2545b4bdecd984fa044, type: 3}
+  _cellPrefab: {fileID: 522369828245485672, guid: c4a453df1e6fa2545b4bdecd984fa044, type: 3}
 --- !u!114 &2036910166
 MonoBehaviour:
   m_ObjectHideFlags: 0
